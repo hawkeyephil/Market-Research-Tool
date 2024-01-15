@@ -1,6 +1,6 @@
 #Author: Phil Caldarella 
 #Descriptions: Generates .csv file with most recent exchange rate, change GDP, and change CPI from various 
-#Euro-Atlantic economies for quick overview of the region 
+#Euro-Atlantic and Pacific Region economies for quick overview of the region 
 
 #Import statements 
 #These are additional packages that need to be installed 
@@ -14,10 +14,17 @@ from datetime import date
 
 #Codes for the Euro-Atlantic Reports with source and unique behavior stored in a 2D List  
 #Format: (Economy, Currency, Currecny Code, Currency Source, Inversion to USD, GDP Code, GDP Source, Inflation Code, Inflation Source)
-euro_Atlantic_Codes = [('Canada', 'Canadian Dollar', 'DEXCAUS', 'fred', 'na', 'NAEXKP01CAQ657S', 'fred', 'CANCPALTT01CTGYM', 'fred'), 
-                       ('Switzerland', 'Swiss Franc', 'DEXSZUS', 'fred', 'na', 'CHEGDPRQPSMEI', 'fred', 'CHECPALTT01CTGYM', 'fred'), 
-                       ('United Kingdom', 'Pound Sterling', 'DEXUSUK', 'fred', 'inversion', 'NAEXKP01GBQ657S', 'fred', 'GBRCPALTT01CTGYM', 'fred'), 
-                       ('Euro Area', 'Euro', 'DEXUSEU', 'fred', 'inversion', 'NAEXKP01EZQ657S', 'fred', 'CPHPTT01EZM659N', 'fred')]
+euro_Atlantic_Codes = [('Canada', 'Canadian dollar', 'DEXCAUS', 'fred', 'na', 'NAEXKP01CAQ657S', 'fred', 'CANCPALTT01CTGYM', 'fred'), 
+                       ('Switzerland', 'Swiss franc', 'DEXSZUS', 'fred', 'na', 'CHEGDPRQPSMEI', 'fred', 'CHECPALTT01CTGYM', 'fred'), 
+                       ('United Kingdom', 'pound sterling', 'DEXUSUK', 'fred', 'inversion', 'NAEXKP01GBQ657S', 'fred', 'GBRCPALTT01CTGYM', 'fred'), 
+                       ('Euro Area', 'euro', 'DEXUSEU', 'fred', 'inversion', 'NAEXKP01EZQ657S', 'fred', 'CPHPTT01EZM659N', 'fred')]
+
+#Codes for the Euro-Atlantic Reports with source and unique behavior stored in a 2D List 
+pacific_Region_Codes = [('Australia', 'Australian dollar', 'DEXUSAL', 'fred', 'inversion', 'NAEXKP01AUQ657S', 'fred', 'CPALTT01AUQ659N', 'fred'), 
+                       ('Japan', 'Japanese yen', 'DEXJPUS', 'fred', 'na', 'NAEXKP01JPQ657S', 'fred', 'CPALTT01JPM659N', 'fred'), 
+                       ('New Zealand', 'New Zealand dollar', 'DEXUSNZ', 'fred', 'inversion', 'NAEXKP01NZQ657S', 'fred', 'CPALTT01NZQ659N', 'fred'), 
+                       ('South Korea', 'South Korean yen', 'DEXKOUS', 'fred', 'na', 'NAEXKP01KRQ657S', 'fred', 'KORCPALTT01CTGYM', 'fred')]
+
 
 #Function that qurries source for data and date given a 2D list (code, source, special behavior) 
 def macro_Variable_Collector(macro_Variable_Codes): 
@@ -50,7 +57,7 @@ def exchange_Rate_Generator(exchange_Rate_Codes):
         if(row["special_Behavior"] == 'inversion'): 
             row["macro_Variable_Recent"] = 1/row["macro_Variable_Recent"] 
         #Reduces sig figs of exchange rate and appends the observation date 
-        exchange_Rates_Adjusted.append(str("{:.3g}".format(row["macro_Variable_Recent"])) + ' (' + row["macro_Variable_Date"] + ')')
+        exchange_Rates_Adjusted.append(str("{:.4g}".format(row["macro_Variable_Recent"])) + ' (' + row["macro_Variable_Date"] + ')')
     #Returns list of exchange rates after cleaning 
     return (exchange_Rates_Adjusted) 
 
@@ -105,12 +112,17 @@ def report_Generator(region_Codes):
     return euro_Atlantic_Data
 
 #Stores results of the report function call with the euro_Atlantic_Codes parameter 
-report = report_Generator(euro_Atlantic_Codes) 
+euro_Atlantic_Report = report_Generator(euro_Atlantic_Codes) 
+#Stores results of the report function call with the pacific_Region_Codes parameter 
+pacific_Region_Report = report_Generator(pacific_Region_Codes) 
 #Collects todays date 
 today = date.today().strftime('%m-%d-%Y') 
-#Filepath and filename 
-filename = '~/Downloads/Euro-Atlantic Report (' + today + ").csv" 
-#Exports the pandas dataframe stored in the report variable to a .csv file in the downloads folder
-report.to_csv(filename, index = False) 
-#Returns the report findings to the console for quick access 
-print(tabulate(report, headers = 'keys', tablefmt = 'plain')) 
+#Filepath and filenames 
+euro_Atlantic_Filename = '~/Downloads/Euro-Atlantic Report (' + today + ").csv" 
+pacific_Region_Filename = '~/Downloads/Pacific Region Report (' + today + ").csv" 
+#Exports the pandas dataframes stored in the report variables to a .csv file in the downloads folder
+euro_Atlantic_Report.to_csv(euro_Atlantic_Filename, index = False) 
+pacific_Region_Report.to_csv(pacific_Region_Filename, index = False) 
+#Prints the reports to the console for quick access 
+print(tabulate(euro_Atlantic_Report, headers = 'keys', tablefmt = 'plain')) 
+print(tabulate(pacific_Region_Report, headers = 'keys', tablefmt = 'plain')) 
