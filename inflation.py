@@ -14,10 +14,10 @@ print(par_Values)
 #Define a dataframe to store the query results 
 inflation_Rates_Data = pd.DataFrame()
 #Define the economies we want to pull inflation rate data for 
-filters = {'geo': ['CZ', 'HU', 'PL', 'RO']} 
+#Reported monthly/annual rate of change/All-items HICP/economy codes
+filters = {'freq': ['M'], 'unit': ['RCH_A'], 'coicop': ['CP00'], 'geo': ['CZ', 'HU', 'PL', 'RO']} 
 #Use Eurostat API to pull data 
 inflation_Rates_Data = eurostat.get_data_df(inflation_Rate_Source, filter_pars=filters) 
-print(inflation_Rates_Data)
 #Removes some unnecessary columns 
 inflation_Rates_Data = inflation_Rates_Data.drop(['freq', 'unit', 'coicop'], axis = 1)
 #Get the most recent observartion and date  
@@ -29,6 +29,6 @@ date_object = datetime.strptime(latest_Observation_Date, '%Y-%m')
 latest_Observation_Date = date_object.strftime('%m-%d-%Y')
 #Append the observation date to the lates observation 
 for index, value in latest_Observations.items(): 
-    latest_Observations[index] = str("{:.4g}".format(latest_Observations[index]))+ ' (' + latest_Observation_Date + ')' 
+    latest_Observations[index] = str("{:.3g}".format(latest_Observations[index]))+ ' (' + latest_Observation_Date + ')' 
 
 print(latest_Observations) 

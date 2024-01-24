@@ -22,10 +22,6 @@ output_Data = output_Data.drop(['freq', 'unit', 's_adj', 'na_item'], axis = 1)
 #Get the most recent observartion and date  
 latest_Observations = output_Data.iloc[:, -1] 
 latest_Observation_Date = latest_Observations.name 
-#Parse the original string into a datetime object
-#date_object = datetime.strptime(latest_Observation_Date, '%Y-%m')
-#Format the datetime object into a new string with the American format
-#latest_Observation_Date = date_object.strftime('%m-%d-%Y')
 #Append the observation date to the lates observation 
 for index, value in latest_Observations.items(): 
     latest_Observations[index] = str("{:.4g}".format(latest_Observations[index]))+ '% (' + latest_Observation_Date + ')' 
