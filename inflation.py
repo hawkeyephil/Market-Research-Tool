@@ -13,7 +13,7 @@ print(par_Values)
 
 #Define a dataframe to store the query results 
 inflation_Rates_Data = pd.DataFrame()
-#Define the economies we want to pull exchange rate data for 
+#Define the economies we want to pull inflation rate data for 
 filters = {'geo': ['CZ', 'HU', 'PL', 'RO']} 
 #Use Eurostat API to pull data 
 inflation_Rates_Data = eurostat.get_data_df(inflation_Rate_Source, filter_pars=filters) 

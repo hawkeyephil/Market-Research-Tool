@@ -4,13 +4,14 @@ from datetime import datetime
 
 #Codes for the Central Europe Report with source and unique behavior stored in a 2D List  
 #Format: (Economy, Currency, Currecny Code, Currency Source, Inversion to Euros, GDP Code, GDP Source, Inflation Code, Inflation Source)
-central_Europe_Codes = [('Czech Republic', 'koruna', 'CZK', 'eurostat', 'invserion', 'na', 'na', 'na', 'na'), 
-                       ('Hungary', 'forint', 'HUF', 'eurostat', 'inversion', 'na', 'na', 'na', 'na'), 
-                       ('Poland', 'zloty', 'PLN', 'eurostat', 'inversion', 'na', 'na', 'na', 'na'), 
-                       ('Romania', 'leu', 'RON', 'eurostat', 'inversion', 'na', 'na', 'na', 'na')]
+central_Europe_Codes = [('Czech Republic', 'koruna', 'CZK', 'eurostat', 'invserion', 'na', 'na', 'CZ', 'eurostat'), 
+                       ('Hungary', 'forint', 'HUF', 'eurostat', 'inversion', 'na', 'na', 'HU', 'eurostat'), 
+                       ('Poland', 'zloty', 'PLN', 'eurostat', 'inversion', 'na', 'na', 'PL', 'eurostat'), 
+                       ('Romania', 'leu', 'RON', 'eurostat', 'inversion', 'na', 'na', 'RO', 'eurostat')]
 
 #Defines the data sources
 exchange_Rate_Source = 'ert_bil_eur_d' 
+output_Source = 'namq_10_gdp' 
 inflation_Rate_Source = 'prc_hicp_manr' 
 
 #Find the data we want to select
@@ -64,7 +65,7 @@ for index, value in latest_Observations2.items():
 
 
 #Defines the pandas dataframe that holds all of our data 
-central_Europe_Data = pd.DataFrame(columns=['Economy', 'Currency', 'Exchange Rate to Euros', 'Percent Change GDP YoY (Seasonally Adjusted)', 'Percent Change CPI YoY (Not Seasonally Adjusted)']) 
+central_Europe_Data = pd.DataFrame(columns=['Economy', 'Currency', 'Exchange Rate to Euros', 'Percent Change GDP YoY (Seasonally Adjusted)', 'Percent Change CPI YoY (HICP)']) 
 
 counter = 0 
 #Combines the results of the above lists to make a dataframe 
