@@ -2,7 +2,7 @@ import eurostat
 import pandas as pd
 from datetime import datetime 
 
-#Codes for the Central Europe Report with source and unique behavior stored in a 2D List  
+#Codes for the Central Europe Report with source and unique behavior stored in a 2D List (Created for future integration with ReportGenerator)
 #Format: (Economy, Currency, Currecny Code, Currency Source, Inversion to Euros, GDP Code, GDP Source, Inflation Code, Inflation Source)
 central_Europe_Codes = [('Czech Republic', 'koruna', 'CZK', 'eurostat', 'invserion', 'CZ', 'eurostat', 'CZ', 'eurostat'), 
                        ('Hungary', 'forint', 'HUF', 'eurostat', 'inversion', 'HU', 'HU', 'eurostat', 'eurostat'), 
@@ -14,76 +14,68 @@ exchange_Rate_Source = 'ert_bil_eur_d'
 output_Source = 'namq_10_gdp' 
 inflation_Rate_Source = 'prc_hicp_manr' 
 
-#Find the data we want to select (for Debugging Purposes)
-#pars = eurostat.get_pars(exchange_Rate_Source)
-#print(pars) 
-#par_Values = eurostat.get_par_values(exchange_Rate_Source, 'currency') 
-#print(par_Values) 
+#Defines source filters 
+exchange_Rate_Filters = {'currency': ['CZK', 'HUF', 'PLN', 'RON']} 
+output_Filters = {'unit': ['CLV_PCH_SM'], 's_adj': ['SCA'], 'na_item': ['B1GQ'], 'geo': ['CZ', 'HU', 'PL', 'RO']}
+inflation_Rate_Filters = {'freq': ['M'], 'unit': ['RCH_A'], 'coicop': ['CP00'], 'geo': ['CZ', 'HU', 'PL', 'RO']} 
 
-#Define a dataframe to store the exchange rate data results 
-exchange_Rates_Data = pd.DataFrame()
-#Define the currencies we want to pull exchange rate data for 
-filters = {'currency': ['CZK', 'HUF', 'PLN', 'RON']} 
-#Use Eurostat API to pull data 
-exchange_Rates_Data = eurostat.get_data_df(exchange_Rate_Source, filter_pars=filters) 
-#Removes some unnecessary columns 
-exchange_Rates_Data = exchange_Rates_Data.drop(['freq', 'statinfo', 'unit'], axis = 1)
-#Get the most recent observartion and date  
-latest_Observations = exchange_Rates_Data.iloc[:, -1] 
-latest_Observation_Date = latest_Observations.name 
-#Parse the original string into a datetime object
-date_object = datetime.strptime(latest_Observation_Date, '%Y-%m-%d')
-#Format the datetime object into a new string with the American format
-latest_Observation_Date = date_object.strftime('%m-%d-%Y')
-#Append the observation date to the lates observation 
-for index, value in latest_Observations.items(): 
-    latest_Observations[index] = 1/latest_Observations[index] 
-    latest_Observations[index] = str("{:.3g}".format(latest_Observations[index]))+ ' (' + latest_Observation_Date + ')' 
+#Function that uses Eurostat API to pull data and filter for latest observation
+def macro_Variable_Collector(source, filters): 
+    macro_Variable_Data = pd.DataFrame()
+    macro_Variable_Data = eurostat.get_data_df(source, filter_pars = filters) 
+    latest_Data = macro_Variable_Data.iloc[:, -1] 
+    return(latest_Data) 
 
-#Define a dataframe to store the inflation rate data results 
-inflation_Rates_Data = pd.DataFrame()
-#Define the economies we want to pull inflation rate data for 
-#Reported monthly/annual rate of change/All-items HICP/economy codes
-filters = {'freq': ['M'], 'unit': ['RCH_A'], 'coicop': ['CP00'], 'geo': ['CZ', 'HU', 'PL', 'RO']} 
-#Use Eurostat API to pull data 
-inflation_Rates_Data = eurostat.get_data_df(inflation_Rate_Source, filter_pars=filters) 
-print(inflation_Rates_Data)
-#Removes some unnecessary columns 
-inflation_Rates_Data = inflation_Rates_Data.drop(['freq', 'unit', 'coicop'], axis = 1)
-#Get the most recent observartion and date  
-latest_Observations2 = inflation_Rates_Data.iloc[:, -1] 
-latest_Observation_Date2 = latest_Observations2.name 
-#Parse the original string into a datetime object
-date_object2 = datetime.strptime(latest_Observation_Date2, '%Y-%m')
-#Format the datetime object into a new string with the American format
-latest_Observation_Date2 = date_object2.strftime('%m-%d-%Y')
-#Append the observation date to the lates observation 
-for index, value in latest_Observations2.items(): 
-    latest_Observations2[index] = str("{:.3g}".format(latest_Observations2[index]))+ '% (' + latest_Observation_Date2 + ')' 
-
-#Define a dataframe to store the GDP data results 
-output_Data = pd.DataFrame()
-#Define the economies we want to pull GDP data for 
-#Chained linked volumes (percentage change from same period previous year)/seasonally and calendar adjusted/Gross domestic product at market prices/economies
-filters = {'unit': ['CLV_PCH_SM'], 's_adj': ['SCA'], 'na_item': ['B1GQ'], 'geo': ['CZ', 'HU', 'PL', 'RO']} 
-#Use Eurostat API to pull data 
-output_Data = eurostat.get_data_df(output_Source, filter_pars=filters) 
-#Removes some unnecessary columns 
-output_Data = output_Data.drop(['freq', 'unit', 's_adj', 'na_item'], axis = 1)
-#Get the most recent observartion and date  
-latest_Observations3 = output_Data.iloc[:, -1] 
-latest_Observation_Date3 = latest_Observations3.name 
-#Append the observation date to the lates observation 
-for index, value in latest_Observations3.items(): 
-    latest_Observations3[index] = str("{:.3g}".format(latest_Observations3[index]))+ '% (' + latest_Observation_Date3 + ')' 
+#Function that does post processing (like currency inversion) and appends the date to the observation
+def process_Append_Date(source, latest_Data): 
+    #Collects the observation data and stores it as a variable
+    latest_Data_Date = latest_Data.name 
+    #Exchange Rates Processing
+    if(source == 'ert_bil_eur_d'): 
+        #Parse the original string into a datetime object
+        date_Object = datetime.strptime(latest_Data_Date, '%Y-%m-%d')
+        #Format the datetime object into a new string with the American format
+        latest_Data_Date = date_Object.strftime('%m-%d-%Y')
+        #Append the observation date to the lates observation 
+        for index, value in latest_Data.items(): 
+            latest_Data[index] = 1/latest_Data[index] 
+            latest_Data[index] = str("{:.3g}".format(latest_Data[index]))+ ' (' + latest_Data_Date + ')' 
+    #Output Processing 
+    elif(source == 'namq_10_gdp'):
+        #Append the observation date to the lates observation 
+        for index, value in latest_Data.items(): 
+            latest_Data[index] = str("{:.3g}".format(latest_Data[index]))+ '% (' + latest_Data_Date + ')' 
+    #Inflation Processing 
+    elif(source == 'prc_hicp_manr'):
+        date_Object = datetime.strptime(latest_Data_Date, '%Y-%m')
+        #Format the datetime object into a new string with the American format
+        latest_Data_Date = date_Object.strftime('%m-%d-%Y')
+        #Append the observation date to the lates observation 
+        for index, value in latest_Data.items(): 
+            latest_Data[index] = str("{:.3g}".format(latest_Data[index]))+ '% (' + latest_Data_Date + ')' 
+    #Error Handling 
+    else: 
+        print('Invalid Source') 
+    #Returns the processed series 
+    return(latest_Data)
 
 #Defines the pandas dataframe that holds all of our data 
 central_Europe_Data = pd.DataFrame(columns=['Economy', 'Currency', 'Exchange Rate to Euros', 'Percent Change GDP YoY (Seasonally Adjusted)', 'Percent Change CPI YoY (HICP)']) 
 
-counter = 0 
-#Combines the results of the above lists to populate the central_Europe_Data dataframe  
+#Function calls
+exchange_Rate_Data = macro_Variable_Collector(exchange_Rate_Source, exchange_Rate_Filters) 
+exchange_Rate_Data = process_Append_Date(exchange_Rate_Source, exchange_Rate_Data) 
+
+inflation_Rate_Data = macro_Variable_Collector(inflation_Rate_Source, inflation_Rate_Filters) 
+inflation_Rate_Data = process_Append_Date(inflation_Rate_Source, inflation_Rate_Data) 
+
+output_Data = macro_Variable_Collector(output_Source, output_Filters) 
+output_Data = process_Append_Date(output_Source, output_Data) 
+
+#Combines the results of the above lists to populate the central_Europe_Data dataframe 
+counter = 0   
 for economy, currency, exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion, output_Code, output_Source, inflation_Code, inflation_Source in central_Europe_Codes: 
-    new_Row = {'Economy': economy, 'Currency': currency, 'Exchange Rate to Euros': latest_Observations[counter], 'Percent Change GDP YoY (Seasonally Adjusted)': latest_Observations3[counter], 'Percent Change CPI YoY (HICP)': latest_Observations2[counter]} 
+    new_Row = {'Economy': economy, 'Currency': currency, 'Exchange Rate to Euros': exchange_Rate_Data[counter], 'Percent Change GDP YoY (Seasonally Adjusted)': inflation_Rate_Data[counter], 'Percent Change CPI YoY (HICP)': output_Data[counter]} 
     central_Europe_Data = central_Europe_Data.append(new_Row, ignore_index = True) 
     counter = counter + 1 
 
