@@ -4,17 +4,17 @@ from datetime import datetime
 
 #Codes for the Central Europe Report with source and unique behavior stored in a 2D List (Created for future integration with ReportGenerator)
 #Format: (Economy, Currency, Currecny Code, Currency Source, Inversion to Euros, GDP Code, GDP Source, Inflation Code, Inflation Source)
-central_Europe_Codes = [('Czech Republic', 'koruna', 'CZK', 'eurostat', 'invserion', 'CZ', 'eurostat', 'CZ', 'eurostat'), 
-                       ('Hungary', 'forint', 'HUF', 'eurostat', 'inversion', 'HU', 'HU', 'eurostat', 'eurostat'), 
-                       ('Poland', 'zloty', 'PLN', 'eurostat', 'inversion', 'PL', 'eurostat', 'PL', 'eurostat'), 
-                       ('Romania', 'leu', 'RON', 'eurostat', 'inversion', 'RO', 'eurostat', 'RO', 'eurostat')]
+central_Europe_Codes = [('Czechia', 'Czech koruna', 'CZK', 'eurostat', 'invserion', 'CZ', 'eurostat', 'CZ', 'eurostat'), 
+                       ('Hungary', 'Hungarian forint', 'HUF', 'eurostat', 'inversion', 'HU', 'HU', 'eurostat', 'eurostat'), 
+                       ('Poland', 'Polish zloty', 'PLN', 'eurostat', 'inversion', 'PL', 'eurostat', 'PL', 'eurostat'), 
+                       ('Romania', 'Romanian leu', 'RON', 'eurostat', 'inversion', 'RO', 'eurostat', 'RO', 'eurostat')]
 
 #Defines the data sources
 exchange_Rate_Source = 'ert_bil_eur_d' 
 output_Source = 'namq_10_gdp' 
 inflation_Rate_Source = 'prc_hicp_manr' 
 
-#Defines source filters 
+#Defines source filters (Eurostat specific filters)
 exchange_Rate_Filters = {'currency': ['CZK', 'HUF', 'PLN', 'RON']} 
 output_Filters = {'unit': ['CLV_PCH_SM'], 's_adj': ['SCA'], 'na_item': ['B1GQ'], 'geo': ['CZ', 'HU', 'PL', 'RO']}
 inflation_Rate_Filters = {'freq': ['M'], 'unit': ['RCH_A'], 'coicop': ['CP00'], 'geo': ['CZ', 'HU', 'PL', 'RO']} 
