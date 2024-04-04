@@ -14,16 +14,16 @@ from datetime import date
 
 #Codes for the Euro-Atlantic Reports with source and unique behavior stored in a 2D List  
 #Format: (Economy, Currency, Currecny Code, Currency Source, Inversion to USD, GDP Code, GDP Source, Inflation Code, Inflation Source)
-euro_Atlantic_Codes = [('Canada', 'Canadian dollar', 'DEXCAUS', 'fred', 'na', 'NAEXKP01CAQ657S', 'fred', 'CANCPALTT01CTGYM', 'fred'), 
-                       ('Switzerland', 'Swiss franc', 'DEXSZUS', 'fred', 'na', 'CHEGDPRQPSMEI', 'fred', 'CHECPALTT01CTGYM', 'fred'), 
-                       ('United Kingdom', 'pound sterling', 'DEXUSUK', 'fred', 'inversion', 'NAEXKP01GBQ657S', 'fred', 'GBRCPALTT01CTGYM', 'fred'), 
-                       ('Euro Area', 'euro', 'DEXUSEU', 'fred', 'inversion', 'NAEXKP01EZQ657S', 'fred', 'CPHPTT01EZM659N', 'fred')]
+euro_Atlantic_Codes = [('Canada', 'DEXCAUS', 'fred', 'na', 'NAEXKP01CAQ657S', 'fred', 'CANCPALTT01CTGYM', 'fred'), 
+                       ('Switzerland', 'DEXSZUS', 'fred', 'na', 'CHEGDPRQPSMEI', 'fred', 'CHECPALTT01CTGYM', 'fred'), 
+                       ('United Kingdom', 'DEXUSUK', 'fred', 'inversion', 'NAEXKP01GBQ657S', 'fred', 'GBRCPALTT01CTGYM', 'fred'), 
+                       ('Euro Area', 'DEXUSEU', 'fred', 'inversion', 'NAEXKP01EZQ657S', 'fred', 'CPHPTT01EZM659N', 'fred')]
 
 #Codes for the Euro-Atlantic Reports with source and unique behavior stored in a 2D List 
-pacific_Region_Codes = [('Australia', 'Australian dollar', 'DEXUSAL', 'fred', 'inversion', 'NAEXKP01AUQ657S', 'fred', 'CPALTT01AUQ659N', 'fred'), 
-                       ('Japan', 'Japanese yen', 'DEXJPUS', 'fred', 'na', 'NAEXKP01JPQ657S', 'fred', 'CPALTT01JPM659N', 'fred'), 
-                       ('New Zealand', 'New Zealand dollar', 'DEXUSNZ', 'fred', 'inversion', 'NAEXKP01NZQ657S', 'fred', 'CPALTT01NZQ659N', 'fred'), 
-                       ('South Korea', 'South Korean yen', 'DEXKOUS', 'fred', 'na', 'NAEXKP01KRQ657S', 'fred', 'KORCPALTT01CTGYM', 'fred')]
+pacific_Region_Codes = [('Australia', 'DEXUSAL', 'fred', 'inversion', 'NAEXKP01AUQ657S', 'fred', 'CPALTT01AUQ659N', 'fred'), 
+                       ('Japan', 'DEXJPUS', 'fred', 'na', 'NAEXKP01JPQ657S', 'fred', 'CPALTT01JPM659N', 'fred'), 
+                       ('New Zealand', 'DEXUSNZ', 'fred', 'inversion', 'NAEXKP01NZQ657S', 'fred', 'CPALTT01NZQ659N', 'fred'), 
+                       ('South Korea', 'DEXKOUS', 'fred', 'na', 'NAEXKP01KRQ657S', 'fred', 'KORCPALTT01CTGYM', 'fred')]
 
 
 #Function that qurries source for data and date given a 2D list (code, source, special behavior) 
@@ -57,7 +57,7 @@ def exchange_Rate_Generator(exchange_Rate_Codes):
         if(row["special_Behavior"] == 'inversion'): 
             row["macro_Variable_Recent"] = 1/row["macro_Variable_Recent"] 
         #Reduces sig figs of exchange rate and appends the observation date 
-        exchange_Rates_Adjusted.append(str("{:.4g}".format(row["macro_Variable_Recent"])) + ' (' + row["macro_Variable_Date"] + ')')
+        exchange_Rates_Adjusted.append(str("{:.4g}".format(row["macro_Variable_Recent"]))) #+ ' (' + row["macro_Variable_Date"] + ')')
     #Returns list of exchange rates after cleaning 
     return (exchange_Rates_Adjusted) 
 
@@ -69,7 +69,7 @@ def output_Generator(output_Codes):
     #Iterates through each exchange rate  
     for index, row in outputs.iterrows(): 
         #Reduces sig figs of GDP and appends a percent sign and the observation date       
-        outputs_Adjusted.append(str( "{:.3g}".format(row["macro_Variable_Recent"])) + '% (' + row["macro_Variable_Date"] + ')')
+        outputs_Adjusted.append(str( "{:.3g}".format(row["macro_Variable_Recent"])) + '%') #(' + row["macro_Variable_Date"] + ')')
     #Returns list of GDPs after cleaning 
     return (outputs_Adjusted) 
 
@@ -81,7 +81,7 @@ def inflation_Rate_Generator(inflation_Rate_Codes):
     #Iterates through each inflation rate  
     for index, row in inflation_Rates.iterrows(): 
         #Reduces sig figs of inflation and appends a percent sign and the observation date         
-        inflation_Rates_Adjusted.append(str( "{:.4g}".format(row["macro_Variable_Recent"])) + '% (' + row["macro_Variable_Date"] + ')')
+        inflation_Rates_Adjusted.append(str( "{:.4g}".format(row["macro_Variable_Recent"])) + '%') #(' + row["macro_Variable_Date"] + ')')
     #Returns list of inflation rates after cleaning 
     return (inflation_Rates_Adjusted) 
 
@@ -92,7 +92,7 @@ def report_Generator(region_Codes):
     output_Codes = [] 
     inflation_Codes = [] 
     #Loops through each row in the region_Codes dataframe and appends the macro variable to the correct list 
-    for economy, currency, exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion, output_Code, output_Source, inflation_Code, inflation_Source in region_Codes: 
+    for economy, exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion, output_Code, output_Source, inflation_Code, inflation_Source in region_Codes: 
         exchange_Rate_Codes.append((exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion)) 
         output_Codes.append((output_Code, output_Source, 'na')) 
         inflation_Codes.append((inflation_Code, inflation_Source, 'na')) 
@@ -102,14 +102,14 @@ def report_Generator(region_Codes):
     inflation_Rates = inflation_Rate_Generator(inflation_Codes) 
     counter = 0 
     #Final dataframe to contain all observations
-    euro_Atlantic_Data = panda.DataFrame(columns=['Economy', 'Currency', 'Exchange Rate to USD', 'Percent Change GDP YoY (Seasonally Adjusted)', 'Percent Change CPI YoY (Not Seasonally Adjusted)']) 
+    Data = panda.DataFrame(columns=['Economy', 'Exchange Rate to USD', 'Percent Change GDP YoY (Seasonally Adjusted)', 'Percent Change CPI YoY (Not Seasonally Adjusted)']) 
     #Combines the results of the above lists to make a dataframe 
-    for economy, currency, exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion, output_Code, output_Source, inflation_Code, inflation_Source in region_Codes: 
-        new_Row = {'Economy': economy, 'Currency': currency, 'Exchange Rate to USD': exchange_Rates[counter], 'Percent Change GDP YoY (Seasonally Adjusted)': outputs[counter], 'Percent Change CPI YoY (Not Seasonally Adjusted)': inflation_Rates[counter]} 
-        euro_Atlantic_Data = euro_Atlantic_Data.append(new_Row, ignore_index = True) 
+    for economy, exchange_Rate_Code, exchange_Rate_Source, exchange_Rate_Inversion, output_Code, output_Source, inflation_Code, inflation_Source in region_Codes: 
+        new_Row = {'Economy': economy, 'Exchange Rate to USD': exchange_Rates[counter], 'Percent Change GDP YoY (Seasonally Adjusted)': outputs[counter], 'Percent Change CPI YoY (Not Seasonally Adjusted)': inflation_Rates[counter]} 
+        Data = Data.append(new_Row, ignore_index = True) 
         counter = counter + 1  
     #Returns the pandas dataframe with all findings 
-    return euro_Atlantic_Data
+    return Data 
 
 #Stores results of the report function call with the euro_Atlantic_Codes parameter 
 euro_Atlantic_Report = report_Generator(euro_Atlantic_Codes) 
